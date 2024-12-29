@@ -46,12 +46,16 @@ export default function Home() {
     const cardElement = cardRefs.current[index];
     if (cardElement) {
       try {
-        // Set high scale for better quality
+        // Adjust html2canvas options to capture the full content without cropping
         const canvas = await html2canvas(cardElement, {
           useCORS: true, // Ensure external images are fetched and included
           allowTaint: true, // Allow tainting for external images
-          scale: 6, // Increase scale to improve image resolution (default is 1)
-          backgroundColor: null,
+          scale: 6, // Set scale for better quality
+          backgroundColor: null, // Make background transparent
+          x: 0, // Adjust starting X position
+          y: 0, // Adjust starting Y position
+          width: cardElement.offsetWidth, // Match the card's width
+          height: cardElement.offsetHeight, // Match the card's height
         });
 
         const image = canvas.toDataURL("image/png");
