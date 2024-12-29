@@ -73,7 +73,7 @@ export default function Home() {
           rel="stylesheet"
         />
       </Head>
-      <h1 className="text-2xl my-10">OG Data Fetcher</h1>
+      <h1 className="text-2xl my-10">Social Media Card Generato</h1>
 
       <div className="flex items-center gap- w-full max-w-xl">
         <input
