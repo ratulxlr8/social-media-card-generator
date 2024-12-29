@@ -1,13 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Head from "next/head";
+import html2canvas from "html2canvas";
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [ogData, setOgData] = useState({ image: null, title: null });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const cardRefs = useRef([]);
 
   const fetchOgData = async () => {
     setLoading(true);
@@ -37,64 +40,111 @@ export default function Home() {
     }
   };
 
-  // Custom loader to allow any image domain
   const customLoader = ({ src }) => src;
 
+  const handleDownload = async (index) => {
+    const cardElement = cardRefs.current[index];
+    if (cardElement) {
+      try {
+        // Set high scale for better quality
+        const canvas = await html2canvas(cardElement, {
+          useCORS: true, // Ensure external images are fetched and included
+          allowTaint: true, // Allow tainting for external images
+          scale: 6, // Increase scale to improve image resolution (default is 1)
+          backgroundColor: null,
+        });
+
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = `card_${index + 1}.png`;
+        link.click();
+      } catch (error) {
+        console.error("Error capturing the card image:", error);
+      }
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] items-center justify-items-center min-h-screen p-8 gap-8 font-[family-name:var(--font-geist-sans)]">
+    <div className="items-center justify-items-center w-full">
       <Head>
         <link
           href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;700&display=swap"
           rel="stylesheet"
         />
       </Head>
-      <h1 className="text-2xl font-bold">OG Data Fetcher</h1>
-      <div className="flex flex-col items-center gap-4 w-full max-w-xl">
+      <h1 className="text-2xl my-10">OG Data Fetcher</h1>
+
+      <div className="flex items-center gap- w-full max-w-xl">
         <input
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="Enter URL"
-          className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 w-full p-3 ring-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           onClick={fetchOgData}
-          className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="inline px-6 py-3.5 bg-blue-500 text-white    hover:bg-blue-600"
           disabled={loading}
         >
           {loading ? "Loading..." : "Fetch OG Data"}
         </button>
         {error && <p className="text-red-500">{error}</p>}
       </div>
-      {ogData.image && (
-        <div
-          className="max-w-xl mx-auto bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden mt-8"
-          style={{ fontFamily: "'Noto Serif Bengali', serif" }}
-        >
-          {/* Title Section */}
-          <div className="bg-gray-100 px-6 py-4 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-800 text-center">
-              {ogData.title || "কোনো শিরোনাম পাওয়া যায়নি"}
-            </h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 w-full">
+        {[...Array(4)].map((_, index) => (
+          <div
+            key={index}
+            ref={(el) => (cardRefs.current[index] = el)}
+            style={{
+              backgroundColor:
+                index === 0
+                  ? "#2c3e50"
+                  : index === 1
+                  ? "#1B5E20"
+                  : index === 2
+                  ? "#F57F17"
+                  : "#c0392b",
+            }}
+            className="max-w-xs mx-auto bg-white overflow-hidden"
+          >
+            <div className="px-6 py-4     -gray-200">
+              <h2 className="text-2xl text-center text-white">
+                {ogData.title || "কোনো শিরোনাম পাওয়া যায়নি"}
+              </h2>
+            </div>
+            <div>
+              {ogData.image && (
+                <Image
+                  loader={customLoader}
+                  src={ogData.image}
+                  alt="OG Image"
+                  width={640}
+                  height={360}
+                />
+              )}
+            </div>
+            <div className="px-6 py-3 text-center text-gray-200">
+              {`   বিস্তারিত কমেন্টে`}
+            </div>
           </div>
-          {/* Image Section */}
-          <div className="">
-            <Image
-              loader={customLoader}
-              src={ogData.image}
-              alt="OG Image"
-              width={640} // Fixed width
-              height={360} // 16:9 ratio height
-            />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 justify-between w-full">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="flex justify-center">
+            <button
+              onClick={() => handleDownload(index)}
+              className="inline-block col-span-1 px-6 py-3 bg-green-500 text-white    hover:bg-green-600 mt-4"
+            >
+              Download Card {index + 1}
+            </button>
           </div>
-          {/* Footer Section */}
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <p className="text-center text-gray-600 font-medium">
-              বিস্তারিত কমেন্টে
-            </p>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 }
