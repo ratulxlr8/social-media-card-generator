@@ -1,14 +1,15 @@
 "use client";
-import { useState, useRef } from "react";
-import Image from "next/image";
-import Head from "next/head";
 import html2canvas from "html2canvas";
+import Head from "next/head";
+import Image from "next/image";
+import { useRef, useState } from "react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [ogData, setOgData] = useState({ image: null, title: null });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cardCount, setCardCount] = useState(4); // Default number of cards
 
   const cardRefs = useRef([]);
 
@@ -18,13 +19,11 @@ export default function Home() {
     setOgData({ image: null, title: null });
 
     try {
-      // Fetch OG data using the Microlink API
       const response = await fetch(
         `https://api.microlink.io?url=${encodeURIComponent(url)}`
       );
       const data = await response.json();
 
-      // Extract the OG image URL and title
       const ogImageUrl = data?.data?.image?.url;
       const ogTitle = data?.data?.title;
 
@@ -46,16 +45,11 @@ export default function Home() {
     const cardElement = cardRefs.current[index];
     if (cardElement) {
       try {
-        // Adjust html2canvas options to capture the full content without cropping
         const canvas = await html2canvas(cardElement, {
-          useCORS: true, // Ensure external images are fetched and included
-          allowTaint: true, // Allow tainting for external images
-          scale: 6, // Set scale for better quality
-          backgroundColor: null, // Make background transparent
-          x: 0, // Adjust starting X position
-          y: 0, // Adjust starting Y position
-          width: cardElement.offsetWidth, // Match the card's width
-          height: cardElement.offsetHeight, // Match the card's height
+          useCORS: true,
+          allowTaint: true,
+          scale: 6,
+          backgroundColor: null,
         });
 
         const image = canvas.toDataURL("image/png");
@@ -69,85 +63,111 @@ export default function Home() {
     }
   };
 
+  // Predefined styles for cards
+  const cardStyles = [
+    { backgroundColor: "#2c3e50", textColor: "text-white" },
+    { backgroundColor: "#1B5E20", textColor: "text-white" },
+    { backgroundColor: "#F57F17", textColor: "text-black" },
+    { backgroundColor: "#c0392b", textColor: "text-white" },
+    { backgroundColor: "#8e44ad", textColor: "text-white" },
+    { backgroundColor: "#2980b9", textColor: "text-white" },
+    { backgroundColor: "#27ae60", textColor: "text-white" },
+    { backgroundColor: "#e74c3c", textColor: "text-white" },
+    { backgroundColor: "#34495e", textColor: "text-white" },
+    { backgroundColor: "#16a085", textColor: "text-white" },
+  ];
+
   return (
-    <div className="items-center justify-items-center w-full">
+    <div className="items-center justify-items-center w-full container mx-auto">
       <Head>
         <link
           href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;700&display=swap"
           rel="stylesheet"
         />
       </Head>
-      <h1 className="text-2xl my-10">Social Media Card Generato</h1>
+      <h1 className="text-2xl my-10">Social Media Card Generator</h1>
 
-      <div className="flex items-center gap- w-full max-w-xl">
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Enter URL"
-          className="flex-1 w-full p-3 ring-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={fetchOgData}
-          className="inline px-6 py-3.5 bg-blue-500 text-white    hover:bg-blue-600"
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Fetch OG Data"}
-        </button>
+      {/* Input Section */}
+      <div className="flex flex-col items-center gap-4 w-full max-w-xl">
+        <div className="flex items-center gap-4 w-full">
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="Enter URL"
+            className="flex-1 w-full p-3 ring-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={fetchOgData}
+            className="inline px-6 py-3.5 bg-blue-500 text-white hover:bg-blue-600"
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "Fetch OG Data"}
+          </button>
+        </div>
+        <div className="flex items-center gap-4 w-full">
+          <label htmlFor="cardCount" className="text-gray-700">
+            Number of Cards:
+          </label>
+          <input
+            id="cardCount"
+            type="number"
+            value={cardCount}
+            onChange={(e) => setCardCount(Number(e.target.value))}
+            className="p-3 ring-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            min="1"
+            max="10"
+          />
+        </div>
         {error && <p className="text-red-500">{error}</p>}
       </div>
 
+      {/* Card Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 w-full">
-        {[...Array(4)].map((_, index) => (
-          <div
-            key={index}
-            ref={(el) => (cardRefs.current[index] = el)}
-            style={{
-              backgroundColor:
-                index === 0
-                  ? "#2c3e50"
-                  : index === 1
-                  ? "#1B5E20"
-                  : index === 2
-                  ? "#F57F17"
-                  : "#c0392b",
-            }}
-            className="max-w-xs mx-auto bg-white overflow-hidden"
-          >
-            <div className="px-6 py-4     -gray-200">
-              <h2 className="text-2xl text-center text-white">
-                {ogData.title || "কোনো শিরোনাম পাওয়া যায়নি"}
-              </h2>
+        {[...Array(cardCount)].map((_, index) => {
+          const { backgroundColor, textColor } =
+            cardStyles[index % cardStyles.length];
+          return (
+            <div className="flex flex-col items-center" key={index}>
+              <div
+                key={index}
+                ref={(el) => (cardRefs.current[index] = el)}
+                style={{ backgroundColor }}
+                className="w-full mx-auto bg-white overflow-hidden rounded-lg shadow-md flex flex-col justify-between"
+              >
+                {/* Card Content */}
+                <div className={`px-6 py-4 ${textColor}`}>
+                  <h2 className="text-2xl text-center">
+                    {ogData.title || "কোনো শিরোনাম পাওয়া যায়নি"}
+                  </h2>
+                </div>
+                <div>
+                  {ogData.image && (
+                    <Image
+                      loader={customLoader}
+                      src={ogData.image}
+                      alt="OG Image"
+                      width={640}
+                      height={360}
+                    />
+                  )}
+                </div>
+                <div className="px-6 py-3 text-center text-gray-200">
+                  বিস্তারিত কমেন্টে
+                </div>
+                {/* Download Button */}
+              </div>
+              <div className="px-6 py-4">
+                <button
+                  onClick={() => handleDownload(index)}
+                  className="w-full px-4 py-2 bg-green-500 text-white hover:bg-green-600 rounded-md"
+                >
+                  Download Card {index + 1}
+                </button>
+              </div>
             </div>
-            <div>
-              {ogData.image && (
-                <Image
-                  loader={customLoader}
-                  src={ogData.image}
-                  alt="OG Image"
-                  width={640}
-                  height={360}
-                />
-              )}
-            </div>
-            <div className="px-6 py-3 text-center text-gray-200">
-              {`   বিস্তারিত কমেন্টে`}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 justify-between w-full">
-        {[...Array(4)].map((_, index) => (
-          <div key={index} className="flex justify-center">
-            <button
-              onClick={() => handleDownload(index)}
-              className="inline-block col-span-1 px-6 py-3 bg-green-500 text-white    hover:bg-green-600 mt-4"
-            >
-              Download Card {index + 1}
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

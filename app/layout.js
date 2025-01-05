@@ -1,5 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import { Noto_Serif_Bengali } from "next/font/google"; // Import Bangla font
+import { Geist, Geist_Mono, Noto_Serif_Bengali } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,7 +25,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSerifBengali.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSerifBengali.variable} antialiased bg-slate-100`}
       >
         {children}
       </body>

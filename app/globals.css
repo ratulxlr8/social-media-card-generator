@@ -3,3 +3,7 @@
 @tailwind utilities;
 
 
+.hide-on-capture {
+    visibility: hidden;
+  }
+  
