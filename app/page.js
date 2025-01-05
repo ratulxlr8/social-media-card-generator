@@ -152,8 +152,18 @@ export default function Home() {
                     />
                   )}
                 </div>
-                <div className="px-6 py-3 text-center text-gray-200">
-                  বিস্তারিত কমেন্টে
+                <div className="px-6 py-3 text-center flex gap-2.5 items-center justify-center">
+                  <div className="flex  items-center justify-center gap-1">
+                    <span className="inline-block w-4 h-4 bg-gray-200 rounded-full"></span>
+                    <span className="inline-block w-3 h-3 bg-gray-300 rounded-full"></span>
+                    <span className="inline-block w-2 h-2 bg-gray-400 rounded-full"></span>
+                  </div>
+                  <p className="text-gray-200 ">বিস্তারিত কমেন্টে</p>
+                  <div className="flex  items-center justify-center gap-1">
+                    <span className="inline-block w-2 h-2 bg-gray-400 rounded-full"></span>
+                    <span className="inline-block w-3 h-3 bg-gray-300 rounded-full"></span>
+                    <span className="inline-block w-4 h-4 bg-gray-200 rounded-full"></span>
+                  </div>
                 </div>
                 {/* Download Button */}
               </div>
