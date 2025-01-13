@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono, Noto_Serif_Bengali } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react"
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${notoSerifBengali.variable} antialiased bg-slate-100`}
       >
         {children}
+        <Analytics/>
       </body>
     </html>
   );
